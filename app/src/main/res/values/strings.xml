@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">扫码NFC工具</string>
+    <string name="scan_title">扫码</string>
+    <string name="nfc_title">NFC 读卡</string>
+    <string name="scan_desc">扫描二维码 / 条形码，直接返回原始内容，可复制、可打开链接</string>
+    <string name="nfc_desc">读取 NFC 卡片 UID，同时显示十进制与十六进制</string>
+    <string name="btn_start_scan">开始扫描</string>
+    <string name="btn_open_nfc">进入 NFC 读卡</string>
+    <string name="btn_open_link">打开链接</string>
+    <string name="btn_copy">复制</string>
+    <string name="btn_scan_again">再次扫描</string>
+    <string name="copy_done">已复制</string>
+    <string name="result_empty">未识别到内容</string>
+    <string name="no_link">当前内容不是链接</string>
+    <string name="no_nfc_hw">此设备不支持 NFC</string>
+    <string name="nfc_enable_hint">请将 NFC 卡片贴近手机背部感应区。可连续贴卡读取，每次自动更新并记录</string>
+    <string name="nfc_scan_again">继续读卡</string>
+    <string name="nfc_uid_hex">十六进制 (HEX)</string>
+    <string name="nfc_uid_dec">十进制 (DEC)</string>
+</resources>
