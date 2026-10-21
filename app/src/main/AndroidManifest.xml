@@ -55,6 +55,10 @@
         <activity
             android:name=".LdapSettingsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".LdapHistoryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

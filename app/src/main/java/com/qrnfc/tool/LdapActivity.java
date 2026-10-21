@@ -11,8 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -38,13 +39,16 @@ public class LdapActivity extends AppCompatActivity {
 
     private static final String PREF = "ldap_settings";
 
-    private EditText etName;
+    private AutoCompleteTextView etName;
     private RadioGroup rgType;
     private TextView tvSummary;
     private ListView listResults;
 
     private final List<Map<String, List<String>>> items = new ArrayList<>();
     private ResultAdapter adapter;
+
+    private ArrayAdapter<String> suggestionAdapter;
+    private final List<String> suggestionList = new ArrayList<>();
 
     private String lastHost, lastPort, lastBase, lastBindDn, lastPwd;
     private boolean lastTls;
@@ -62,6 +66,10 @@ public class LdapActivity extends AppCompatActivity {
                 startActivity(new Intent(this, LdapSettingsActivity.class));
                 return true;
             }
+            if (item.getItemId() == R.id.action_history) {
+                startActivity(new Intent(this, LdapHistoryActivity.class));
+                return true;
+            }
             return false;
         });
 
@@ -71,8 +79,23 @@ public class LdapActivity extends AppCompatActivity {
         listResults = findViewById(R.id.listResults);
         Button btnQuery = findViewById(R.id.btnQuery);
 
-        // 切换查询条件时清空已输入的名称
-        rgType.setOnCheckedChangeListener((g, id) -> etName.setText(""));
+        // 输入框历史补全：点开即下拉历史，点选直接填充并查询
+        etName.setThreshold(0);
+        suggestionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, suggestionList);
+        etName.setAdapter(suggestionAdapter);
+        etName.setOnItemClickListener((p, v, pos, id) -> {
+            String picked = suggestionAdapter.getItem(pos);
+            if (picked != null && !picked.isEmpty()) {
+                etName.setText(picked);
+                new Thread(this::queryNow).start();
+            }
+        });
+
+        // 切换查询条件时清空已输入的名称，并刷新历史建议
+        rgType.setOnCheckedChangeListener((g, id) -> {
+            etName.setText("");
+            refreshSuggestions();
+        });
 
         adapter = new ResultAdapter();
         listResults.setAdapter(adapter);
@@ -88,12 +111,27 @@ public class LdapActivity extends AppCompatActivity {
         listResults.setOnItemClickListener((p, v, pos, id) -> showDetail(items.get(pos)));
 
         loadFromPrefs();
+        refreshSuggestions();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         loadFromPrefs(); // 从设置页返回时重新读取
+        refreshSuggestions();
+    }
+
+    /** 按当前查询类型加载历史名称，作为输入框下拉补全建议。 */
+    private void refreshSuggestions() {
+        boolean isUser = rgType.getCheckedRadioButtonId() == R.id.rdUser;
+        String type = isUser ? "用户" : "计算机";
+        suggestionList.clear();
+        for (LdapHistory.Item it : LdapHistory.load(this)) {
+            if (it.type.equals(type) && !suggestionList.contains(it.name)) {
+                suggestionList.add(it.name);
+            }
+        }
+        suggestionAdapter.notifyDataSetChanged();
     }
 
     private void loadFromPrefs() {
@@ -121,10 +159,13 @@ public class LdapActivity extends AppCompatActivity {
             client.bind(lastBindDn, lastPwd);
             byte[] filter = isUser ? buildUserFilter(name) : buildComputerFilter(name);
             List<Map<String, List<String>>> list = client.search(lastBase, filter);
+            // 记录查询历史（去重，最多 50 条）
+            LdapHistory.add(this, isUser ? "用户" : "计算机", name);
             runOnUiThread(() -> {
                 items.clear();
                 items.addAll(list);
                 adapter.notifyDataSetChanged();
+                refreshSuggestions();
                 setSummary(list.isEmpty()
                         ? "未找到匹配对象。" : "命中 " + list.size() + " 条，点击查看详细信息");
             });
