@@ -50,21 +50,18 @@
                     android:text="查用户" />
             </RadioGroup>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:padding="12dp"
                 android:hint="名称"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/etName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:imeOptions="actionDone"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:inputType="text"
+                android:imeOptions="actionDone"
+                android:textSize="14sp"
+                android:background="@drawable/result_box" />
 
             <Button
                 android:id="@+id/btnQuery"
