@@ -90,6 +90,10 @@ public class LdapActivity extends AppCompatActivity {
                 new Thread(this::queryNow).start();
             }
         });
+        // 获得焦点时主动弹出历史下拉，确保一点输入框就能看到历史
+        etName.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) etName.showDropDown();
+        });
 
         // 切换查询条件时清空已输入的名称，并刷新历史建议
         rgType.setOnCheckedChangeListener((g, id) -> {
