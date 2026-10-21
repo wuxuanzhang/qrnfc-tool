@@ -192,7 +192,7 @@ public class LdapActivity extends AppCompatActivity {
                         LdapClient.substring("sAMAccountName", esc)));
     }
 
-    /** 用户：任意位置包含匹配 sAMAccountName / userPrincipalName / cn / mail / displayName。 */
+    /** 用户：任意位置包含匹配 sAMAccountName / userPrincipalName / cn / mail / displayName / description / mobile。 */
     private byte[] buildUserFilter(String name) {
         String esc = "*" + escape(name) + "*";
         return LdapClient.and(
@@ -201,7 +201,9 @@ public class LdapActivity extends AppCompatActivity {
                         LdapClient.substring("userPrincipalName", esc),
                         LdapClient.substring("cn", esc),
                         LdapClient.substring("mail", esc),
-                        LdapClient.substring("displayName", esc)));
+                        LdapClient.substring("displayName", esc),
+                        LdapClient.substring("description", esc),
+                        LdapClient.substring("mobile", esc)));
     }
 
     /** LDAP 过滤器特殊字符转义（* 由调用方追加，不作转义）。 */
